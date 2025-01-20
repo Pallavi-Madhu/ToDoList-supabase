@@ -1,11 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import supabase from "./config/SupabaseClient";
 
 function App() {
  const [newtodo , setNewToDo]  = useState('')
- //const [isCompleted , setIsCompleted ] = useState('')
  const[formError ,setFormError] = useState(null)
+ const[fetchError , setFetcherror] = useState(null)
+ const[todos,setTodos] = useState([])
+
+ useEffect(() => {
+  const fetchtodos = async (e) =>{
+    const{data,error} = await supabase 
+    .from ('SupaList')
+    .select("*")
+
+    if(error){
+      setFetcherror("Can't fetch data")
+    }
+    else{
+      setFetcherror(null)
+      setTodos(data)
+    }
+  }
+  fetchtodos()
+ },[])
 
   const handleSubmit = async(e) => {
     e.preventDefault();
@@ -34,8 +52,16 @@ return(
       onChange={(e) => setNewToDo(e.target.value)}
       />
       <button>Add a task</button>
-      {formError && <p className="errot=r">{formError}</p>}
+      {formError && <p className="error">{formError}</p>}
     </form>
+    <div className="todos">
+      {fetchError && <p className="fetcherror">{fetchError}</p>}
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>{todo.Name}</li>
+        ))}
+      </ul>
+    </div>
   </div>
 )
 }
