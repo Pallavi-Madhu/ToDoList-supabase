@@ -3,43 +3,41 @@ import "./App.css";
 import supabase from "./config/SupabaseClient";
 
 function App() {
-  const[toDo,setToDo] = useState([])
-  const[newToDO,setNewToDo] = useState("")
+ const [newtodo , setNewToDo]  = useState('')
+ //const [isCompleted , setIsCompleted ] = useState('')
+ const[formError ,setFormError] = useState(null)
 
-  const addToDo = async() => {
-    const newtododata = {
-      Name:newToDO,
-      Is_completed:false,
-    };
-    const{data,error} = await supabase
-    .from ("ToDoList-Supabase")
-    .insert([newtododata])
-    .single();
-
-    if(error){
-      console.log("error")
-    }
-    if(data){
-     console.log("New Todo Data:", newtododata);
-
-    }
+  const handleSubmit = async(e) => {
+    e.preventDefault();
+    const{data,error} = await supabase 
+    .from('SupaList')
+    .insert([{Name:newtodo, Is_completed:false}])
+  
+  if(error){
+    setFormError("pls fill in the details")
   }
-  return (
-    <>
-      <div>
-        <h1>To Do list</h1>
-        <div>
-          <input
-            type="text"
-            placeholder="New todo..."
-            onChange={(e) => setNewToDo(e.target.value)}
-          />
-          <button onClick={addToDo}>Add a todo item</button>
-        </div>
-        <ul></ul>
-      </div>
-    </>
-  );
+  else{
+    console.log("Inserted data:", data);
+    setFormError(null);
+    setNewToDo(""); 
+  }
+}
+
+return(
+  <div className="page">
+    <form onSubmit={handleSubmit}>
+      <input 
+      type="text"
+      id="newtodo"
+      placeholder="Add a new todo"
+      value={newtodo}
+      onChange={(e) => setNewToDo(e.target.value)}
+      />
+      <button>Add a task</button>
+      {formError && <p className="errot=r">{formError}</p>}
+    </form>
+  </div>
+)
 }
 
 export default App;
